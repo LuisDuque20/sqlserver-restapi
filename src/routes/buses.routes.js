@@ -15,10 +15,10 @@ router.get('/rutas/:id', getOneRuta)
 //Ruta para crear buses
 router.post('/rutas', postRuta)
 
-//Ruta para obtener solamente la info de un bus
+//Ruta para actualizar la info de un bus
 router.put('/rutas/:id', putRuta)
 
-//Ruta para obtener solamente la info de un bus
+//Ruta para eliminar un bus
 router.delete('/rutas/:id', deleteRuta)
 
 export default router
