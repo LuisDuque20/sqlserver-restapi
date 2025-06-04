@@ -31,7 +31,7 @@ export const getFavoritas = async (req, res) => {
 
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: "Este usuario no tiene rutas favoritas." });
-        } else { res.json({ message: `Ruta actualizada correctamente correctamente` }) }
+        } else res.json(result.recordset);
     } catch (err) {
         console.error("Error al mostrar las rutas favoritas del usuario:", err);
         res.status(500).json({ message: "Error del servidor" });
@@ -39,3 +39,4 @@ export const getFavoritas = async (req, res) => {
         if (ps) await ps.unprepare();
     }
 }
+
