@@ -91,26 +91,55 @@ export const putRuta = async (req, res) => {
 
 //Funcion para borrar ruta
 export const deleteRuta = async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    if (isNaN(id)) return res.status(400).json({ message: "ID inválido" });
+    try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ message: "ID inválido" });
 
-    const pool = await getConnection();
-    const ps = new sql.PreparedStatement(pool);
-    ps.input('id', sql.Int);
-    await ps.prepare('DELETE FROM Autobus WHERE id = @id');
-    const result = await ps.execute({ id });
+        const pool = await getConnection();
+        const ps = new sql.PreparedStatement(pool);
+        ps.input('id', sql.Int);
+        await ps.prepare('DELETE FROM Autobus WHERE id = @id');
+        const result = await ps.execute({ id });
 
-    if (result.rowsAffected[0] === 0) {
-      return res.status(404).json({ message: "Ruta no encontrada" });
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: "Ruta no encontrada" });
+        }
+
+        res.json({ message: "Ruta eliminada correctamente" });
+
+    } catch (err) {
+        console.error("Error al eliminar ruta:", err);
+        res.status(500).json({ message: "Error del servidor" });
+    } finally {
+        if (ps) await ps.unprepare();
     }
-
-    res.json({ message: "Ruta eliminada correctamente" });
-
-  } catch (err) {
-    console.error("Error al eliminar ruta:", err);
-    res.status(500).json({ message: "Error del servidor" });
-  } finally {
-    if (ps) await ps.unprepare();
-  }
 };
+
+export const getParadasOfRuta = async (req, res) => {
+    try {
+        const autobusId = parseInt(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ message: "ID inválido" });
+
+        const pool = await getConnection();
+        const ps = new sql.PreparedStatement(pool);
+        ps.input('autobusId', sql.Int);
+        await ps.prepare(`
+            SELECT P.Id, P.Nombre, AP.Orden
+            FROM Autobus_Parada AP
+            JOIN Parada P ON P.Id = AP.ParadaId
+            WHERE AP.AutobusId = @autobusId
+            ORDER BY AP.Orden
+        `);
+        const result = await ps.execute(autobusId);
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: "Parada/s no encontradas" });
+        }
+        res.json(result.recordset);
+    } catch (err) {
+        console.error("Error al obtener paradas de la ruta:", err);
+        res.status(500).json({ message: "Error del servidor." });
+    } finally {
+        if (ps) await ps.unprepare();
+    }
+}
