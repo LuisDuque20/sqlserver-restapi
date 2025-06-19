@@ -116,30 +116,44 @@ export const deleteRuta = async (req, res) => {
 };
 
 export const getParadasOfRuta = async (req, res) => {
+    let ps;
     try {
         const autobusId = parseInt(req.params.id);
-        if (isNaN(id)) return res.status(400).json({ message: "ID inválido" });
+        if (isNaN(autobusId)) return res.status(400).json({ message: "ID inválido" });
 
         const pool = await getConnection();
-        const ps = new sql.PreparedStatement(pool);
+        ps = new sql.PreparedStatement(pool);
         ps.input('autobusId', sql.Int);
+
         await ps.prepare(`
-            SELECT P.Id, P.Nombre, AP.Orden
+            SELECT 
+                A.Id AS AutobusId,
+                A.Nombre AS NombreAutobus,
+                A.Ruta,
+                A.CostoPasaje,
+                A.Favorito,
+                A.Mapa,
+                P.Id AS ParadaId,
+                P.Nombre AS NombreParada
             FROM Autobus_Parada AP
-            JOIN Parada P ON P.Id = AP.ParadaId
-            WHERE AP.AutobusId = @autobusId
+            INNER JOIN Autobus A ON AP.AutobusId = A.Id
+            INNER JOIN Parada P ON AP.ParadaId = P.Id
+            WHERE A.Id = @autobusId
             ORDER BY AP.Orden
         `);
-        const result = await ps.execute(autobusId);
+
+        const result = await ps.execute({ autobusId });
 
         if (result.rowsAffected[0] === 0) {
-            return res.status(404).json({ message: "Parada/s no encontradas" });
+            return res.status(404).json({ message: "No se encontraron paradas para esta ruta." });
         }
-        res.json(result.recordset);
+
+        return res.json(result.recordset);
+
     } catch (err) {
         console.error("Error al obtener paradas de la ruta:", err);
-        res.status(500).json({ message: "Error del servidor." });
+        return res.status(500).json({ message: "Error del servidor." });
     } finally {
         if (ps) await ps.unprepare();
     }
-}
+};

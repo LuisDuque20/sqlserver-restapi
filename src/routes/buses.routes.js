@@ -22,6 +22,6 @@ router.patch('/rutas/:id', putRuta)
 //Ruta para eliminar un bus
 router.delete('/rutas/:id', deleteRuta)
 
-router.get('rutas/:id/paradas', getParadasOfRuta)
+router.get('/rutas/:id/paradas', getParadasOfRuta)
 
 export default router
