@@ -148,7 +148,22 @@ export const getParadasOfRuta = async (req, res) => {
             return res.status(404).json({ message: "No se encontraron paradas para esta ruta." });
         }
 
-        return res.json(result.recordset);
+        const rows = result.recordset;
+
+        const busInfo = {
+            AutobusId: rows[0].AutobusId,
+            Nombre: rows[0].NombreAutobus,
+            Ruta: rows[0].Ruta,
+            CostoPasaje: rows[0].CostoPasaje,
+            Favorito: rows[0].Favorito,
+            Mapa: rows[0].Mapa,
+            paradas: rows.map(row => ({
+                ParadaId: row.ParadaId,
+                NombreParada: row.NombreParada
+            }))
+        };
+
+        return res.json(busInfo);
 
     } catch (err) {
         console.error("Error al obtener paradas de la ruta:", err);
