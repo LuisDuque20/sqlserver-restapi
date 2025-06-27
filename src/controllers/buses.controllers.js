@@ -172,3 +172,40 @@ export const getParadasOfRuta = async (req, res) => {
         if (ps) await ps.unprepare();
     }
 };
+
+export const getRutasPorLugarInteres = async (req, res) => {
+    let ps;
+    try {
+        const { nombre } = req.params;
+
+        if (!nombre || nombre.trim() === "") {
+            return res.status(400).json({ message: "El nombre del lugar es obligatorio." });
+        }
+
+        const pool = await getConnection();
+        ps = new sql.PreparedStatement(pool);
+        ps.input('nombreLugar', sql.VarChar);
+
+        await ps.prepare(`
+            SELECT A.Id, A.Nombre, A.Ruta, A.CostoPasaje, A.Favorito, A.Mapa
+            FROM Autobus A
+            INNER JOIN Autobus_LugarInteres ALI ON A.Id = ALI.AutobusId
+            INNER JOIN LugarInteres LI ON ALI.LugarInteresId = LI.Id
+            WHERE LI.Nombre = @nombreLugar
+        `);
+
+        const result = await ps.execute({ nombreLugar: nombre });
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: "No se encontraron rutas para ese lugar de interés." });
+        }
+
+        return res.json(result.recordset);
+
+    } catch (err) {
+        console.error("Error al buscar rutas por lugar de interés:", err);
+        return res.status(500).json({ message: "Error del servidor." });
+    } finally {
+        if (ps) await ps.unprepare();
+    }
+};

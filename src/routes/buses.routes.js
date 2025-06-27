@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { getRutas } from '../controllers/buses.controllers.js'
+import { getRutas, getRutasPorLugarInteres } from '../controllers/buses.controllers.js'
 import { getOneRuta } from '../controllers/buses.controllers.js'
 import { postRuta } from '../controllers/buses.controllers.js'
 import { putRuta } from '../controllers/buses.controllers.js'
@@ -23,5 +23,8 @@ router.patch('/rutas/:id', putRuta)
 router.delete('/rutas/:id', deleteRuta)
 
 router.get('/rutas/:id/paradas', getParadasOfRuta)
+
+//Buscar rutas asociadas a un lugar de interés (por nombre del lugar)
+router.get('/rutas/lugar/:nombre', getRutasPorLugarInteres)
 
 export default router
