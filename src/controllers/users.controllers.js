@@ -8,7 +8,7 @@ export const getUsers = async (req, res) => {
         res.json(result.recordset)
     } catch (error) {
         console.error("Error en getUsers:", error)
-        res.status(500).json({ message: "Error al obtener los rutasusuarios", error: error.message })
+        res.status(500).json({ message: "Error al obtener los usuarios", error: error.message })
     }
 }
 
