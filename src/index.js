@@ -6,5 +6,5 @@ getConnection()
 console.log("servidor iniciado...")
 
 app.listen(process.env.PORT, '0.0.0.0', () => {
-    console.log("Servidor iniciado en el puerto 3000...")
+    console.log("Servidor iniciado en el puerto 1000...")
 })
